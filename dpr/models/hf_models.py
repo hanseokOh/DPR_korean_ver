@@ -296,7 +296,7 @@ class BertTensorizer(Tensorizer):
                 add_special_tokens=add_special_tokens,
                 max_length=self.max_length if apply_max_len else 10000,
                 pad_to_max_length=False,
-                truncation=True,
+                truncation='only_second', # True,
             )
         else:
             token_ids = self.tokenizer.encode(
@@ -304,7 +304,7 @@ class BertTensorizer(Tensorizer):
                 add_special_tokens=add_special_tokens,
                 max_length=self.max_length if apply_max_len else 10000,
                 pad_to_max_length=False,
-                truncation=True,
+                truncation='only_second', # True,
             )
 
         seq_len = self.max_length

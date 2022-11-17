@@ -5,10 +5,11 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md") as f:
     readme = f.read()
+
 
 setup(
     name="dpr",
@@ -21,6 +22,8 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
+    py_modules=[''],
+    packages=find_packages(),
     long_description=readme,
     long_description_content_type="text/markdown",
     setup_requires=[

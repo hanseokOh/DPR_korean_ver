@@ -1,4 +1,13 @@
 # @package _group_
+##########################################
+##########################################
+# hs: add custom data here 
+lbox_corpus:
+  _target_: dpr.data.retriever_data.CsvCtxSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute_corpus.tsv
+  id_prefix: 'lbox:'
+##########################################
+##########################################
 
 dpr_wiki:
   _target_: dpr.data.retriever_data.CsvCtxSrc

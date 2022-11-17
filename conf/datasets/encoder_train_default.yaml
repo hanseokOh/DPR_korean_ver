@@ -1,5 +1,35 @@
 # @package _group_
+##########################################
+##########################################
+# hs: add custom data here 
+# statutes retrieval
+lbox_stat_ret_train:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/lbox-statute-train.json # need to change directory?
 
+lbox_stat_ret_train_hn1:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/lbox-statute-train.json
+
+lbox_stat_ret_dev:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/lbox-statute-dev.json
+
+# fact retrieval
+lbox_fact_ret_train:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/lbox-statute-train.json # need to change directory?
+
+lbox_fact_ret_train_hn1:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/lbox-statute-train.json
+
+lbox_fact_ret_dev:
+  _target_: dpr.data.biencoder_data.JsonQADataset
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/lbox-statute-dev.json
+
+##########################################
+##########################################
 nq_train:
   _target_: dpr.data.biencoder_data.JsonQADataset
   file: data.retriever.nq-train

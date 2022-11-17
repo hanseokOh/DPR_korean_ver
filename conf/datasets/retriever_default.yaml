@@ -1,4 +1,35 @@
 # @package _group_
+##########################################
+##########################################
+# hs: add custom data here 
+# statutes retrieval
+lbox_stat_ret_train:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qas/lbox-statute-train-qa.tsv # need to change directory?
+
+lbox_stat_ret_dev:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qas/lbox-statute-dev-qa.tsv
+
+lbox_stat_ret_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qas/lbox-statute-test-qa.tsv
+
+# fact retrieval
+lbox_stat_ret_train:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/qas/lbox-statute-train-qa.tsv # need to change directory?
+
+lbox_stat_ret_dev:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/qas/lbox-statute-dev-qa.tsv
+
+lbox_stat_ret_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/qas/lbox-statute-test-qa.tsv
+
+##########################################
+##########################################
 
 nq_test:
   _target_: dpr.data.retriever_data.CsvQASrc

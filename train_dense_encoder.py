@@ -51,6 +51,7 @@ from dpr.utils.model_utils import (
     load_states_from_checkpoint,
 )
 
+
 logger = logging.getLogger()
 setup_logger(logger)
 
@@ -744,7 +745,7 @@ def _do_biencoder_fwd_pass(
     return loss, is_correct
 
 
-@hydra.main(config_path="conf", config_name="biencoder_train_cfg")
+@hydra.main(config_path="conf", config_name="korean_ver_biencoder_train_cfg")
 def main(cfg: DictConfig):
     if cfg.train.gradient_accumulation_steps < 1:
         raise ValueError(
