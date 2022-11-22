@@ -31,6 +31,13 @@ class QASample:
         self.id = id
         self.answers = answers
 
+# data.append(QrelsSample(self._process_question(question), id, pos_ids))
+class QrelsSample:
+    def __init__(self, query: str, id, pos_ids: List[int]):
+        self.query = query
+        self.id = id
+        self.pos_ids = pos_ids
+
 
 class RetrieverData(torch.utils.data.Dataset):
     def __init__(self, file: str):
@@ -74,6 +81,55 @@ class QASrc(RetrieverData):
         if self.query_special_suffix and not question.endswith(self.query_special_suffix):
             question += self.query_special_suffix
         return question
+
+## hs 
+class JsonQrelsSrc(QASrc):
+    def __init__(
+        self,
+        file: str,
+        question_col: int = 0,
+        answers_col: int = 1,
+        id_col: int = -1,
+        selector: DictConfig = None,
+        special_query_token: str = None,
+        query_special_suffix: str = None,
+        data_range_start: int = -1,
+        data_size: int = -1,
+    ):
+        super().__init__(file, selector, special_query_token, query_special_suffix)
+        self.question_col = question_col
+        self.answers_col = answers_col
+        self.id_col = id_col
+        self.data_range_start = data_range_start
+        self.data_size = data_size
+
+    def load_data(self):
+        super().load_data()
+        data = []
+        start = self.data_range_start
+        # size = self.data_size
+        samples_count = 0
+        # TODO: optimize
+        with open(self.file,encoding='utf-8') as ifile:
+            out = json.load(ifile)
+
+        for k,row in out.items():
+            question = row['question']
+            pos_ids = row['positive_ids']
+            id = k
+            # if self.id_col >= 0:
+            #     id = row[self.id_col]
+            samples_count += 1
+            # if start !=-1 and samples_count<=start:
+            #    continue
+            data.append(QrelsSample(self._process_question(question), id, pos_ids))
+
+        if start != -1:
+            end = start + self.data_size if self.data_size != -1 else -1
+            logger.info("Selecting dataset range [%s,%s]", start, end)
+            self.data = data[start:end] if end != -1 else data[start:]
+        else:
+            self.data = data
 
 
 class CsvQASrc(QASrc):
@@ -249,6 +305,38 @@ class TTS_ASR_QASrc(QASrc):
                 data.append(QASample(q, idx, answers))
         self.data = data
 
+class JsonCtxSrc(RetrieverData):
+    def __init__(
+        self,
+        file: str,
+        id_col: int = 0,
+        text_col: int = 1,
+        title_col: int = 2,
+        id_prefix: str = None,
+        normalize: bool = False,
+    ):
+        super().__init__(file)
+        self.text_col = text_col
+        self.title_col = title_col
+        self.id_col = id_col
+        self.id_prefix = id_prefix
+        self.normalize = normalize
+
+    def load_data_to(self, ctxs: Dict[object, BiEncoderPassage]):
+        super().load_data()
+        logger.info("Reading file %s", self.file)
+        with open(self.file,encoding='utf-8') as ifile:
+            data = json.load(ifile)
+
+        for row in data:
+            if self.id_prefix:
+                sample_id = self.id_prefix + str(row['id'])
+            else:
+                sample_id = row['id']
+            passage = row['text'].strip('"')
+            if self.normalize:
+                passage = normalize_passage(passage)
+            ctxs[sample_id] = BiEncoderPassage(passage, row['title'])
 
 class CsvCtxSrc(RetrieverData):
     def __init__(

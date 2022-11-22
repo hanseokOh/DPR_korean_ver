@@ -25,7 +25,7 @@ from torch import Tensor as T
 from torch import nn
 
 from dpr.utils.data_utils import RepTokenSelector
-from dpr.data.qa_validation import calculate_matches, calculate_chunked_matches, calculate_matches_from_meta
+from dpr.data.qa_validation import calculate_matches, calculate_chunked_matches, calculate_matches_from_meta, calculate_matches_from_qrels ## hs
 from dpr.data.retriever_data import KiltCsvCtxSrc, TableChunk
 from dpr.indexer.faiss_indexers import (
     DenseIndexer,
@@ -72,8 +72,11 @@ def generate_question_vectors(
                 batch_tensors = [tensorizer.text_to_tensor(q) for q in batch_questions]
 
             # TODO: this only works for Wav2vec pipeline but will crash the regular text pipeline
-            max_vector_len = max(q_t.size(1) for q_t in batch_tensors)
-            min_vector_len = min(q_t.size(1) for q_t in batch_tensors)
+            # max_vector_len = max(q_t.size(1) for q_t in batch_tensors)
+            # min_vector_len = min(q_t.size(1) for q_t in batch_tensors)
+            max_vector_len = max(q_t.size(-1) for q_t in batch_tensors)
+            min_vector_len = min(q_t.size(-1) for q_t in batch_tensors)
+
 
             if max_vector_len != min_vector_len:
                 # TODO: _pad_to_len move to utils
@@ -314,6 +317,22 @@ def validate(
     logger.info("Validation results: top k documents hits accuracy %s", top_k_hits)
     return match_stats.questions_doc_hits
 
+## hs : ToDo - add qrels evaluation script 
+def validate_from_qrels(
+    passages: Dict[object, Tuple[str, str]],
+    question_pos_ids: List[List[int]],
+    result_ctx_ids: List[Tuple[List[object], List[float]]],
+    workers_num: int,
+    match_type: str,
+) -> List[List[bool]]:
+    logger.info("validating passages. size=%d", len(passages))
+    match_stats = calculate_matches_from_qrels(passages, question_pos_ids, result_ctx_ids, workers_num, match_type)
+    top_k_hits = match_stats.top_k_hits
+
+    logger.info("Validation results: top k documents hits %s", top_k_hits)
+    top_k_hits = [v / len(result_ctx_ids) for v in top_k_hits]
+    logger.info("Validation results: top k documents hits accuracy %s", top_k_hits)
+    return match_stats.questions_doc_hits
 
 def validate_from_meta(
     answers: List[List[str]],
@@ -374,8 +393,8 @@ def save_results(
 
         merged_data.append(results_item)
 
-    with open(out_file, "w") as writer:
-        writer.write(json.dumps(merged_data, indent=4) + "\n")
+    with open(out_file, "w",encoding='utf-8') as writer:
+        writer.write(json.dumps(merged_data, indent=4,ensure_ascii=False) + "\n")
     logger.info("Saved results * scores  to %s", out_file)
 
 
@@ -469,7 +488,7 @@ def get_all_passages(ctx_sources):
     return all_passages
 
 
-@hydra.main(config_path="conf", config_name="dense_retriever")
+@hydra.main(config_path="conf", config_name="korean_ver_dense_retriever")
 def main(cfg: DictConfig):
     cfg = setup_cfg_gpu(cfg)
     saved_state = load_states_from_checkpoint(cfg.model_file)
@@ -504,6 +523,10 @@ def main(cfg: DictConfig):
     questions_text = []
     question_answers = []
 
+    ## hs
+    questions_qrel = []
+    question_pos_ids = []
+
     if not cfg.qa_dataset:
         logger.warning("Please specify qa_dataset to use")
         return
@@ -523,6 +546,22 @@ def main(cfg: DictConfig):
 
     logger.info("questions len %d", len(questions))
     logger.info("questions_text len %d", len(questions_text))
+
+    ## hs : add qrels file 
+    qrel_key = cfg.qrel_dataset
+    logger.info("qrel_dataset: %s", qrel_key)
+    qrels_src = hydra.utils.instantiate(cfg.datasets[qrel_key])
+    qrels_src.load_data()
+
+    total_qrels = len(qrels_src)
+    for i in range(total_qrels):
+        qrels_sample = qrels_src[i]
+        question, pos_ids = qrels_sample.query, qrels_sample.pos_ids
+        questions_qrel.append(question)
+        question_pos_ids.append(pos_ids)
+
+    logger.info("questions_qrel len %d", len(questions_qrel))
+    logger.info("questions_pos_ids len %d", len(question_pos_ids))
 
     if cfg.rpc_retriever_cfg_file:
         index_buffer_sz = 1000
@@ -614,24 +653,35 @@ def main(cfg: DictConfig):
             )
     else:
         all_passages = get_all_passages(ctx_sources)
-        if cfg.validate_as_tables:
+        ## hs : ToDo - add qrels evaluation script 
+        if cfg.validate_using_qrels:
 
-            questions_doc_hits = validate_tables(
+            questions_doc_hits = validate_from_qrels(
                 all_passages,
-                question_answers,
+                question_pos_ids,
                 top_results_and_scores,
                 cfg.validation_workers,
                 cfg.match,
             )
-
         else:
-            questions_doc_hits = validate(
-                all_passages,
-                question_answers,
-                top_results_and_scores,
-                cfg.validation_workers,
-                cfg.match,
-            )
+            if cfg.validate_as_tables:
+
+                questions_doc_hits = validate_tables(
+                    all_passages,
+                    question_answers,
+                    top_results_and_scores,
+                    cfg.validation_workers,
+                    cfg.match,
+                )
+
+            else:
+                questions_doc_hits = validate(
+                    all_passages,
+                    question_answers,
+                    top_results_and_scores,
+                    cfg.validation_workers,
+                    cfg.match,
+                )
 
         if cfg.out_file:
             save_results(

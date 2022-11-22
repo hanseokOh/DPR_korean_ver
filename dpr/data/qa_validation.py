@@ -31,6 +31,56 @@ QATableMatchStats = collections.namedtuple(
     "QAMatchStats", ["top_k_chunk_hits", "top_k_table_hits", "questions_doc_hits"]
 )
 
+## hs 
+def calculate_matches_from_qrels(
+    all_docs: Dict[object, Tuple[str, str]],
+    question_pos_ids: List[List[int]],
+    closest_docs: List[Tuple[List[object], List[float]]],
+    workers_num: int,
+    match_type: str,
+) -> QAMatchStats:
+    """
+    Evaluates answers presence in the set of documents. This function is supposed to be used with a large collection of
+    documents and results. It internally forks multiple sub-processes for evaluation and then merges results
+    :param all_docs: dictionary of the entire documents database. doc_id -> (doc_text, title)
+    :param question_pos_ids: list of positive id's list. One list per question ## hs
+    :param closest_docs: document ids of the top results along with their scores
+    :param workers_num: amount of parallel threads to process data
+    :param match_type: type of answer matching. Refer to has_answer code for available options
+    :return: matching information tuple.
+    top_k_hits - a list where the index is the amount of top documents retrieved and the value is the total amount of
+    valid matches across an entire dataset.
+    questions_doc_hits - more detailed info with answer matches for every question and every retrieved document
+    """
+    logger.info("using qrles to eval results")
+    logger.info("all_docs size %d", len(all_docs))
+    global dpr_all_documents
+    dpr_all_documents = all_docs
+    logger.info("dpr_all_documents size %d", len(dpr_all_documents))
+
+    tok_opts = {}
+    tokenizer = SimpleTokenizer(**tok_opts)
+
+    processes = ProcessPool(processes=workers_num)
+    logger.info("Matching answers in top docs...")
+    # get_score_partial = partial(check_answer, match_type=match_type, tokenizer=tokenizer)
+    get_score_partial = partial(check_answer_from_qrels, match_type=match_type, tokenizer=tokenizer)
+
+    questions_pos_ids_docs = zip(question_pos_ids, closest_docs)
+    scores = processes.map(get_score_partial, questions_pos_ids_docs)
+
+    logger.info("Per question validation results len=%d", len(scores))
+
+    n_docs = len(closest_docs[0][0])
+    top_k_hits = [0] * n_docs
+    for question_hits in scores:
+        best_hit = next((i for i, x in enumerate(question_hits) if x), None)
+        if best_hit is not None:
+            top_k_hits[best_hit:] = [v + 1 for v in top_k_hits[best_hit:]]
+
+    return QAMatchStats(top_k_hits, scores)
+
+
 
 def calculate_matches(
     all_docs: Dict[object, Tuple[str, str]],
@@ -114,6 +164,30 @@ def calculate_matches_from_meta(
             top_k_hits[best_hit:] = [v + 1 for v in top_k_hits[best_hit:]]
 
     return QAMatchStats(top_k_hits, scores)
+
+## hs : custom eval
+def check_answer_from_qrels(question_pos_ids, tokenizer, match_type) -> List[bool]:
+    """Search through all the top docs to see if they have any of the answers."""
+    pos_ids, (doc_ids, doc_scores) = question_pos_ids
+
+    global dpr_all_documents
+    hits = []
+
+    for i, doc_id in enumerate(doc_ids):
+        doc = dpr_all_documents[doc_id]
+        text = doc[0]
+
+        answer_found = False
+        if text is None:  # cannot find the document for some reason
+            logger.warning("no doc in db")
+            hits.append(False)
+            continue
+        # if has_answer(answers, text, tokenizer, match_type):
+        if doc_id in pos_ids:
+            answer_found = True
+        hits.append(answer_found)
+    return hits
+
 
 
 def check_answer(questions_answers_docs, tokenizer, match_type) -> List[bool]:

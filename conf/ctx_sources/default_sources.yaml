@@ -2,10 +2,15 @@
 ##########################################
 ##########################################
 # hs: add custom data here 
-lbox_corpus:
-  _target_: dpr.data.retriever_data.CsvCtxSrc
-  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute_corpus.tsv
-  id_prefix: 'lbox:'
+lbox_fact_corpus:
+  _target_: dpr.data.retriever_data.JsonCtxSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/fact-retrieval/corpus.json
+  id_prefix: 'lbox_fact:'
+
+lbox_statute_corpus:
+  _target_: dpr.data.retriever_data.JsonCtxSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/corpus.json
+  id_prefix: 'lbox_stat:'
 ##########################################
 ##########################################
 

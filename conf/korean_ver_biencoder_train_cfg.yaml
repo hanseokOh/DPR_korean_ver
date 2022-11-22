@@ -2,7 +2,7 @@
 # configuration groups
 defaults: 
   - encoder: korean_ver_hf_bert_multilingual # hs: need to change
-  - train: biencoder_default
+  - train: korean_ver_biencoder_default
   - datasets: encoder_train_default # hs: need to change
 
 train_datasets:
@@ -16,7 +16,7 @@ do_lower_case: True
 
 val_av_rank_start_epoch: 30
 seed: 12345
-checkpoint_file_name: dpr_biencoder
+checkpoint_file_name: dpr_biencoder_bert_multi
 
 # A trained bi-encoder checkpoint file to initialize the model
 model_file:
