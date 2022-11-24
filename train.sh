@@ -1,50 +1,31 @@
 #!/bin/bash
 
+## STATUTE-RETREIVER default config
+DEVICES=1,3
+NUM_NODE=2
+TRAIN_DATASETS=lbox_stat_ret_train
+DEV_DATASETS=lbox_stat_ret_dev
+TRAIN_CONFIG=korean_ver_biencoder_local
+ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
+OUTPUT_DIR=/data/hanseok/law/statutes-ret-bert-multi
+
+## FACT-RETREIVER default config
+# DEVICES=1,3
+# NUM_NODE=2
+# TRAIN_DATASETS=lbox_fact_ret_train
+# DEV_DATASETS=lbox_fact_ret_dev
+# TRAIN_CONFIG=korean_ver_biencoder_local
+# ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
+# OUTPUT_DIR=/data/hanseok/law/fact-ret-bert-multi
+
+
 ## Statutes retrieval
-# bert-base-multilingual-uncased
+CUDA_VISIBLE_DEVICES=$DEVICES \
 python -m torch.distributed.launch \
---nproc_per_node=4 \
+--nproc_per_node=$NUM_NODE \
 train_dense_encoder.py \
-train_datasets=[lbox_stat_ret_train] \
-dev_datasets=[lbox_stat_ret_dev] \
-train=korean_ver_biencoder_local \
-encoder=korean_ver_hf_bert_multilingual
-
-# skt/kobert-base-v1
-python -m torch.distributed.launch \
---nproc_per_node=4 \
-train_dense_encoder.py \
-train_datasets=[lbox_stat_ret_train] \
-dev_datasets=[lbox_stat_ret_dev] \
-train=korean_ver_biencoder_local \
-encoder=korean_ver_hf_bert_kobert
-
-## Fact retrieval 
-# bert-base-multilingual-uncased
-python -m torch.distributed.launch \
---nproc_per_node=4 \
-train_dense_encoder.py \
-train_datasets=[lbox_fact_ret_train] \
-dev_datasets=[lbox_fact_ret_dev] \
-train=korean_ver_biencoder_local \
-encoder=korean_ver_hf_bert_multilingual
-
-# skt/kobert-base-v1
-python -m torch.distributed.launch \
---nproc_per_node=4 \
-train_dense_encoder.py \
-train_datasets=[lbox_fact_ret_train] \
-dev_datasets=[lbox_fact_ret_dev] \
-train=korean_ver_biencoder_local \
-encoder=korean_ver_hf_bert_kobert
-
-
-CUDA_VISIBLE_DEVICES=0,3 \
-python -m torch.distributed.launch \
---nproc_per_node=2 \
-train_dense_encoder.py \
-train_datasets=[lbox_fact_ret_train] \
-dev_datasets=[lbox_fact_ret_dev] \
-train=korean_ver_biencoder_local \
-encoder=korean_ver_hf_bert_multilingual \
-output_dir=/data/hanseok/law/fact-ret-bert-multi/
+train_datasets=[$TRAIN_DATASETS] \
+dev_datasets=[$DEV_DATASETS] \
+train=$TRAIN_CONFIG \
+encoder=$ENCODER \
+output_dir=$OUTPUT_DIR

@@ -379,6 +379,7 @@ def save_results(
                 {
                     "id": results_and_scores[0][c],
                     "title": docs[c][1],
+                    "statutes": docs[c][2], ## hs 
                     "text": docs[c][0],
                     "score": scores[c],
                     "has_answer": hits[c],
