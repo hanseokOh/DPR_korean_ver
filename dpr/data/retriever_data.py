@@ -12,6 +12,7 @@ from omegaconf import DictConfig
 
 from dpr.data.biencoder_data import (
     BiEncoderPassage,
+    BiEncoderPassageFactRet, ## hs
     normalize_passage,
     get_dpr_files,
     read_nq_tables_jsonl,
@@ -305,6 +306,7 @@ class TTS_ASR_QASrc(QASrc):
                 data.append(QASample(q, idx, answers))
         self.data = data
 
+## hs : for fact retrieval
 class JsonCtxSrc(RetrieverData):
     def __init__(
         self,
@@ -322,7 +324,7 @@ class JsonCtxSrc(RetrieverData):
         self.id_prefix = id_prefix
         self.normalize = normalize
 
-    def load_data_to(self, ctxs: Dict[object, BiEncoderPassage]):
+    def load_data_to(self, ctxs: Dict[object, BiEncoderPassageFactRet]):
         super().load_data()
         logger.info("Reading file %s", self.file)
         with open(self.file,encoding='utf-8') as ifile:
@@ -334,9 +336,10 @@ class JsonCtxSrc(RetrieverData):
             else:
                 sample_id = row['id']
             passage = row['text'].strip('"')
+            statutes = row['statutes'] # hs : for statute info for passage 
             if self.normalize:
                 passage = normalize_passage(passage)
-            ctxs[sample_id] = BiEncoderPassage(passage, row['title'])
+            ctxs[sample_id] = BiEncoderPassageFactRet(passage, row['title'],statutes)
 
 class CsvCtxSrc(RetrieverData):
     def __init__(

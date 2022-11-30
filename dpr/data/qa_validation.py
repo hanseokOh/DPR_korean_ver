@@ -182,8 +182,11 @@ def check_answer_from_qrels(question_pos_ids, tokenizer, match_type) -> List[boo
             logger.warning("no doc in db")
             hits.append(False)
             continue
-        # if has_answer(answers, text, tokenizer, match_type):
-        if doc_id in pos_ids:
+        
+        if ':' in doc_id:
+            doc_id_num_only = int(doc_id.split(":")[1])
+        
+        if doc_id_num_only in pos_ids:
             answer_found = True
         hits.append(answer_found)
     return hits

@@ -23,17 +23,34 @@ lbox_stat_ret_dev_qrel:
   _target_: dpr.data.retriever_data.JsonQrelsSrc
   file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qrels/dev.json
 
-lbox_stat_ret_train_qrel:
-  _target_: dpr.data.retriever_data.JsonQrelsSrc
-  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qrels/train.json
-
-lbox_stat_ret_dev_qrel:
-  _target_: dpr.data.retriever_data.JsonQrelsSrc
-  file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qrels/dev.json
-
-  lbox_stat_ret_test_qrel:
+lbox_stat_ret_test_qrel:
   _target_: dpr.data.retriever_data.JsonQrelsSrc
   file: /home/hanseok/projects/ai599_ai_for_law/project/data/statute-retrieval/qrels/test.json
+
+# casual fact -> statute retrieval
+lbox_casual_stat_ret_train:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qas/lbox-statute-train-qa.tsv # need to change directory?
+
+lbox_casual_stat_ret_dev:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qas/lbox-statute-dev-qa.tsv
+
+lbox_casual_stat_ret_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qas/lbox-statute-test-qa.tsv
+
+lbox_casual_stat_ret_train_qrel:
+  _target_: dpr.data.retriever_data.JsonQrelsSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qrels/train.json
+
+lbox_casual_stat_ret_dev_qrel:
+  _target_: dpr.data.retriever_data.JsonQrelsSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qrels/dev.json
+
+lbox_casual_stat_ret_test_qrel:
+  _target_: dpr.data.retriever_data.JsonQrelsSrc
+  file: /home/hanseok/projects/ai599_ai_for_law/project/data/casual-statute-retrieval/qrels/test.json
 
 # fact retrieval
 lbox_fact_ret_train:

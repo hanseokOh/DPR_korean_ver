@@ -1,12 +1,12 @@
 #!/bin/bash
 
 DEVICES=1,3
-MODEL_FILE=/data/hanseok/law/statutes-ret-bert-multi/dpr_biencoder_bert_multi.0 #/data/hanseok/law/fact-ret-bert-multi/dpr_biencoder_bert_multi.36
+
+MODEL_FILE=/data/hanseok/law/statutes-ret-bert-multi/dpr_biencoder_bert_multi.9 #/data/hanseok/law/fact-ret-bert-multi/dpr_biencoder_bert_multi.36
 # $MODEL_FILE #
-# CTX_SRC=lbox_fact_corpus # lbox_statute_corpus
-CTX_SRC=lbox_statute_corpus # lbox_statute_corpus
+CTX_SRC=lbox_statute_corpus # lbox_fact_corpus, lbox_statute_corpus
 NUM_SHARDS=5
-OUT_FILE=$OUT_FILE #/data/hanseok/law/statutes-ret-bert-multi/embs_stats_ckpt0/chunk
+OUT_FILE=/data/hanseok/law/statutes-ret-bert-multi/embs_stats_ckpt9/chunk
 
 
 # fact retrieval - corpus size : 13317

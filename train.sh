@@ -1,25 +1,36 @@
 #!/bin/bash
 
-## STATUTE-RETREIVER default config
-DEVICES=1,3
+DEVICES=0,1
 NUM_NODE=2
-TRAIN_DATASETS=lbox_stat_ret_train
-DEV_DATASETS=lbox_stat_ret_dev
-TRAIN_CONFIG=korean_ver_biencoder_local
-ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
-OUTPUT_DIR=/data/hanseok/law/statutes-ret-bert-multi
+
+## STATUTE-RETREIVER default config
+# TRAIN_DATASETS=lbox_stat_ret_train
+# DEV_DATASETS=lbox_stat_ret_dev
+# TRAIN_CONFIG=korean_ver_biencoder_local
+# ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
+# OUTPUT_DIR=/data/hanseok/law/statutes-ret-bert-multi
+
+## Casual STATUTE-RETREIVER default config
+# TRAIN_DATASETS=lbox_casual_stat_ret_train
+# DEV_DATASETS=lbox_casual_stat_ret_dev
+# TRAIN_CONFIG=korean_ver_biencoder_local
+# ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
+# OUTPUT_DIR=/data/hanseok/law/casual_statutes-ret-bert-multi
 
 ## FACT-RETREIVER default config
-# DEVICES=1,3
-# NUM_NODE=2
 # TRAIN_DATASETS=lbox_fact_ret_train
 # DEV_DATASETS=lbox_fact_ret_dev
 # TRAIN_CONFIG=korean_ver_biencoder_local
 # ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
 # OUTPUT_DIR=/data/hanseok/law/fact-ret-bert-multi
 
+## Multi-task STATUTE-RETREIVER default config
+TRAIN_DATASETS=lbox_stat_ret_train,lbox_casual_stat_ret_train
+DEV_DATASETS=lbox_stat_ret_dev,lbox_casual_stat_ret_dev
+TRAIN_CONFIG=korean_ver_biencoder_local
+ENCODER=korean_ver_hf_bert_multilingual # korean_ver_hf_bert_kobert
+OUTPUT_DIR=/data/hanseok/law/multitask_statutes-ret-bert-multi
 
-## Statutes retrieval
 CUDA_VISIBLE_DEVICES=$DEVICES \
 python -m torch.distributed.launch \
 --nproc_per_node=$NUM_NODE \

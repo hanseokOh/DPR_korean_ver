@@ -1,5 +1,5 @@
 defaults:
-  - encoder: hf_bert
+  - encoder: korean_ver_hf_bert_multilingual
   - ctx_sources: default_sources
 
 # A trained bi-encoder checkpoint file to initialize the model
