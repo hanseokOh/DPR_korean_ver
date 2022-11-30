@@ -361,6 +361,11 @@ class MultiSetDataIterator(object):
         self.iterables = datasets
         data_lengths = [it.total_data_len() for it in datasets]
         self.total_data = sum(data_lengths)
+        ## hs
+        if sampling_rates and len(sampling_rates)!=len(ds_list_copy):
+            sampling_rates = sampling_rates*len(ds_list_copy)
+            logger.info("rank=%d; Multi set sampling_rates extended %s", rank, sampling_rates)
+
         logger.info("rank=%d; Multi set data sizes %s", rank, data_lengths)
         logger.info("rank=%d; Multi set total data %s", rank, self.total_data)
         logger.info("rank=%d; Multi set sampling_rates %s", rank, sampling_rates)
