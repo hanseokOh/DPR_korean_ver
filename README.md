@@ -45,8 +45,8 @@ train, indexing, test에 해당하는 부분 개별 bash script에 환경 변수
 
 * indexing
 
-``` $ bash ./train.sh ```
+``` $ bash ./indexing.sh ```
 
 * test
 
-``` $ bash ./train.sh ```
+``` $ bash ./test.sh ```
